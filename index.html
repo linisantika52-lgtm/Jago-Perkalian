@@ -1,0 +1,1634 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jago Perkalian - Petualangan Matematika Luar Angkasa</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Fredoka & Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        space: {
+                            dark: '#0B0D1B',
+                            card: '#161936',
+                            purple: '#4F46E5',
+                            accent: '#EC4899',
+                            gold: '#F59E0B',
+                            cyan: '#06B6D4',
+                            green: '#10B981',
+                        }
+                    },
+                    fontFamily: {
+                        display: ['Fredoka', 'sans-serif'],
+                        body: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0B0D1B;
+            background-image: 
+                radial-gradient(circle at 20% 20%, rgba(79, 70, 229, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 80% 80%, rgba(236, 72, 153, 0.15) 0%, transparent 40%);
+            background-attachment: fixed;
+            color: #F3F4F6;
+        }
+
+        .font-display {
+            font-family: 'Fredoka', cursive, sans-serif;
+        }
+
+        /* Custom Star Animation */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle var(--duration) infinite ease-in-out;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.2; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        .floating {
+            animation: float 4s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-12px) rotate(2deg); }
+        }
+
+        /* Glassmorphism utility */
+        .glass-panel {
+            background: rgba(22, 25, 54, 0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .glass-card {
+            background: rgba(30, 35, 71, 0.6);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        /* Responsive custom touch button */
+        .btn-space {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 14px 0 rgba(0, 0, 0, 0.39);
+        }
+        .btn-space:active {
+            transform: scale(0.96);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0B0D1B;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #374151;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between relative overflow-x-hidden">
+
+    <!-- Background Twinkling Stars -->
+    <div class="stars" id="starsContainer"></div>
+
+    <!-- Application Top Navigation Bar -->
+    <header class="relative z-10 p-4 border-b border-gray-800 glass-panel sticky top-0">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <!-- App Logo & Title -->
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="switchView('home')">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-pink-500 flex items-center justify-center text-white text-xl font-bold shadow-lg shadow-indigo-500/30 floating">
+                    <i class="fa-solid fa-rocket"></i>
+                </div>
+                <div>
+                    <h1 class="font-display text-xl md:text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-pink-400 to-amber-300">
+                        JAGO PERKALIAN
+                    </h1>
+                    <p class="text-xs text-gray-400 hidden sm:block">Petualangan Luar Angkasa Matematika SD</p>
+                </div>
+            </div>
+
+            <!-- Role Selector & Active Profile Info -->
+            <div class="flex items-center space-x-3">
+                <div id="studentBadge" class="hidden sm:flex items-center space-x-2 bg-indigo-950/80 border border-indigo-500/30 px-3 py-1.5 rounded-full">
+                    <i class="fa-solid fa-user-astronaut text-indigo-400"></i>
+                    <span id="activeStudentNameDisplay" class="text-sm font-medium text-indigo-200">Pilih Siswa</span>
+                </div>
+
+                <button onclick="toggleUserRoleModal()" class="px-3 py-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 text-xs font-semibold border border-gray-700 flex items-center space-x-1 transition">
+                    <i class="fa-solid fa-sliders text-amber-400"></i>
+                    <span id="roleLabel">Ganti Peran</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTAINER -->
+    <main class="relative z-10 max-w-5xl mx-auto w-full p-4 md:p-6 flex-grow flex flex-col justify-center">
+
+        <!-- ================= VIEW 1: HOME PAGE ================= -->
+        <section id="view-home" class="view-section space-y-8 py-4">
+            <!-- Hero Banner -->
+            <div class="text-center space-y-4">
+                <div class="inline-block px-4 py-1.5 bg-indigo-500/10 border border-indigo-500/30 rounded-full text-indigo-300 text-xs md:text-sm font-semibold tracking-wide">
+                    <i class="fa-solid fa-sparkles text-amber-400 mr-1"></i> Misi Jelajah Galaksi Perkalian
+                </div>
+                <h2 class="font-display text-3xl sm:text-5xl md:text-6xl font-extrabold text-white leading-tight">
+                    Jadilah Kapten <span class="bg-clip-text text-transparent bg-gradient-to-r from-amber-400 via-pink-500 to-indigo-400">Perkalian!</span>
+                </h2>
+                <p class="text-gray-300 max-w-xl mx-auto text-sm sm:text-base">
+                    Selesaikan misi perkalian, dapatkan piala planet, dan taklukkan galaksi matematika bersama roketmu!
+                </p>
+            </div>
+
+            <!-- Student Selection Card -->
+            <div class="max-w-md mx-auto glass-card p-6 rounded-2xl shadow-xl space-y-4">
+                <label class="block text-sm font-medium text-gray-300">
+                    <i class="fa-solid fa-id-card text-indigo-400 mr-2"></i>Pilih Nama Siswa Dulu Ya:
+                </label>
+                <select id="studentSelect" onchange="onStudentSelectChange()" class="w-full bg-space-dark border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-indigo-500 font-medium">
+                    <option value="">-- Pilih Nama Siswa --</option>
+                </select>
+                <div class="flex justify-between items-center text-xs text-gray-400 px-1">
+                    <span>Belum ada namamu?</span>
+                    <button onclick="switchView('teacher')" class="text-indigo-400 hover:underline font-semibold">Minta Guru Mendaftarkan</button>
+                </div>
+            </div>
+
+            <!-- Main Action Buttons -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto pt-2">
+                <!-- Practice Mode Button -->
+                <button onclick="startPracticeMode()" class="btn-space group relative p-6 bg-gradient-to-br from-indigo-600 to-indigo-800 hover:from-indigo-500 hover:to-indigo-700 rounded-2xl text-left border border-indigo-400/30 shadow-lg shadow-indigo-900/50 flex flex-col justify-between h-44 overflow-hidden">
+                    <div class="absolute -right-4 -bottom-4 opacity-20 group-hover:opacity-30 transition">
+                        <i class="fa-solid fa-gamepad text-9xl"></i>
+                    </div>
+                    <div class="space-y-2">
+                        <span class="bg-indigo-900/80 text-indigo-200 text-xs px-2.5 py-1 rounded-md font-bold tracking-wider uppercase border border-indigo-500/30">Mode Latihan</span>
+                        <h3 class="font-display text-2xl font-bold text-white">Latihan Mandiri</h3>
+                        <p class="text-xs text-indigo-200 max-w-[200px]">Bebas pilih perkalian, tanpa timer ketat, dan tanpa risiko kehilangan poin!</p>
+                    </div>
+                    <div class="flex items-center text-amber-300 font-bold text-sm">
+                        Mulai Berlatih <i class="fa-solid fa-arrow-right ml-2 group-hover:translate-x-1 transition"></i>
+                    </div>
+                </button>
+
+                <!-- Official Exam Button -->
+                <button onclick="openExamModal()" class="btn-space group relative p-6 bg-gradient-to-br from-pink-600 to-purple-800 hover:from-pink-500 hover:to-purple-700 rounded-2xl text-left border border-pink-400/30 shadow-lg shadow-pink-900/50 flex flex-col justify-between h-44 overflow-hidden">
+                    <div class="absolute -right-4 -bottom-4 opacity-20 group-hover:opacity-30 transition">
+                        <i class="fa-solid fa-award text-9xl"></i>
+                    </div>
+                    <div class="space-y-2">
+                        <span class="bg-pink-900/80 text-pink-200 text-xs px-2.5 py-1 rounded-md font-bold tracking-wider uppercase border border-pink-500/30">Resmi Sekolah</span>
+                        <h3 class="font-display text-2xl font-bold text-white">Setoran Resmi</h3>
+                        <p class="text-xs text-pink-200 max-w-[200px]">Gunakan token dari Guru untuk membuka checkpoint planet baru!</p>
+                    </div>
+                    <div class="flex items-center text-amber-300 font-bold text-sm">
+                        Masukkan Token <i class="fa-solid fa-key ml-2 group-hover:rotate-45 transition"></i>
+                    </div>
+                </button>
+            </div>
+
+            <!-- Checkpoint Rocket Trail / Mission Map Preview -->
+            <div class="max-w-3xl mx-auto pt-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-display text-lg font-bold text-gray-200 flex items-center">
+                        <i class="fa-solid fa-map text-amber-400 mr-2"></i> Peta Misi Checkpoint
+                    </h3>
+                    <span class="text-xs text-gray-400">Lulus setoran resmi untuk membuka checkpoint!</span>
+                </div>
+                
+                <!-- Planets Map Grid -->
+                <div id="checkpointMap" class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <!-- Populated by JavaScript -->
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= VIEW 2: PRACTICE MODE ================= -->
+        <section id="view-practice" class="view-section hidden space-y-6">
+            <!-- Practice Header -->
+            <div class="flex items-center justify-between border-b border-gray-800 pb-4">
+                <button onclick="switchView('home')" class="text-gray-400 hover:text-white text-sm flex items-center font-medium">
+                    <i class="fa-solid fa-arrow-left mr-2"></i> Kembali ke Menu
+                </button>
+                <div class="text-center">
+                    <span class="text-xs text-indigo-400 uppercase font-bold tracking-widest">Mode Latihan Mandiri</span>
+                    <h2 class="font-display text-xl font-bold text-white">Asah Kemampuan Perkalian</h2>
+                </div>
+                <div class="w-16"></div><!-- Spacer -->
+            </div>
+
+            <!-- Table Selection Tabs -->
+            <div class="flex flex-wrap gap-2 justify-center py-1" id="practiceTableButtons">
+                <!-- Generated by JS: Perkalian 2 - 9 -->
+            </div>
+
+            <!-- Sub Games Selector Tabs -->
+            <div class="max-w-xl mx-auto grid grid-cols-2 sm:grid-cols-4 gap-2 p-1.5 bg-space-dark/80 rounded-2xl border border-gray-800" id="subGameTabs">
+                <button onclick="selectSubGame('mcq')" id="subGameBtn-mcq" class="py-2 px-3 rounded-xl font-display text-xs font-bold transition flex items-center justify-center space-x-1.5 bg-indigo-600 text-white shadow-md">
+                    <i class="fa-solid fa-list-check"></i>
+                    <span>1. Pilih Jawaban</span>
+                </button>
+                <button onclick="selectSubGame('input')" id="subGameBtn-input" class="py-2 px-3 rounded-xl font-display text-xs font-bold transition flex items-center justify-center space-x-1.5 text-gray-400 hover:text-white">
+                    <i class="fa-solid fa-keyboard"></i>
+                    <span>2. Ketik Angka</span>
+                </button>
+                <button onclick="selectSubGame('tf')" id="subGameBtn-tf" class="py-2 px-3 rounded-xl font-display text-xs font-bold transition flex items-center justify-center space-x-1.5 text-gray-400 hover:text-white">
+                    <i class="fa-solid fa-thumbs-up"></i>
+                    <span>3. Benar / Salah</span>
+                </button>
+                <button onclick="selectSubGame('match')" id="subGameBtn-match" class="py-2 px-3 rounded-xl font-display text-xs font-bold transition flex items-center justify-center space-x-1.5 text-gray-400 hover:text-white">
+                    <i class="fa-solid fa-puzzle-piece"></i>
+                    <span>4. Cari Pasangan</span>
+                </button>
+            </div>
+
+            <!-- Practice Game Arena -->
+            <div class="max-w-md mx-auto glass-card rounded-2xl p-6 sm:p-8 text-center space-y-6 border border-indigo-500/20">
+                <div class="flex justify-between items-center text-xs text-gray-400">
+                    <span>Soal Dijawab: <strong id="practiceCount" class="text-indigo-300">0</strong></span>
+                    <span>Akurasi Latihan: <strong id="practiceAccuracy" class="text-green-400">100%</strong></span>
+                </div>
+
+                <!-- SUB GAME 1: MCQ / Pilihan Ganda -->
+                <div id="subGameContainer-mcq" class="space-y-6">
+                    <div class="bg-space-dark/80 rounded-2xl p-6 border border-gray-800 shadow-inner">
+                        <div id="practiceQuestionText" class="font-display text-5xl sm:text-6xl font-extrabold text-white tracking-wider">
+                            ? × ?
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3" id="practiceOptions">
+                        <!-- Generated dynamically -->
+                    </div>
+                </div>
+
+                <!-- SUB GAME 2: Input Ketik Jawaban -->
+                <div id="subGameContainer-input" class="space-y-6 hidden">
+                    <div class="bg-space-dark/80 rounded-2xl p-6 border border-gray-800 shadow-inner">
+                        <div id="inputQuestionText" class="font-display text-5xl sm:text-6xl font-extrabold text-white tracking-wider">
+                            ? × ? = ?
+                        </div>
+                    </div>
+                    <div class="space-y-3">
+                        <input type="number" id="practiceNumberInput" placeholder="Ketik jawabanmu..." class="w-full bg-space-dark border border-indigo-500/50 rounded-2xl p-4 text-center font-display text-3xl text-amber-300 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <button onclick="submitInputAnswer()" class="w-full py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white font-display font-bold text-lg rounded-xl btn-space">
+                            Jawab <i class="fa-solid fa-paper-plane ml-2"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- SUB GAME 3: True / False -->
+                <div id="subGameContainer-tf" class="space-y-6 hidden">
+                    <div class="bg-space-dark/80 rounded-2xl p-6 border border-gray-800 shadow-inner">
+                        <p class="text-xs text-indigo-300 font-semibold mb-2">Apakah Pernyataan Ini Benar?</p>
+                        <div id="tfQuestionText" class="font-display text-4xl sm:text-5xl font-extrabold text-white tracking-wider">
+                            7 × 8 = 56
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <button onclick="answerTrueFalse(true)" class="py-5 bg-emerald-600/80 hover:bg-emerald-500 border border-emerald-400/40 rounded-2xl font-display text-xl font-bold text-white transition btn-space flex flex-col items-center justify-center space-y-1">
+                            <i class="fa-solid fa-circle-check text-2xl"></i>
+                            <span>BENAR</span>
+                        </button>
+                        <button onclick="answerTrueFalse(false)" class="py-5 bg-rose-600/80 hover:bg-rose-500 border border-rose-400/40 rounded-2xl font-display text-xl font-bold text-white transition btn-space flex flex-col items-center justify-center space-y-1">
+                            <i class="fa-solid fa-circle-xmark text-2xl"></i>
+                            <span>SALAH</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- SUB GAME 4: Matching Pair Cards -->
+                <div id="subGameContainer-match" class="space-y-4 hidden">
+                    <p class="text-xs text-indigo-300 font-semibold">Jodohkan Kartu Perkalian dengan Hasilnya!</p>
+                    <div class="grid grid-cols-3 gap-2.5" id="matchCardGrid">
+                        <!-- Generated dynamically -->
+                    </div>
+                </div>
+
+                <!-- Feedback Banner -->
+                <div id="practiceFeedback" class="h-10 flex items-center justify-center font-display text-base rounded-xl transition"></div>
+            </div>
+        </section>
+
+        <!-- ================= VIEW 3: OFFICIAL EXAM (SETORAN) ================= -->
+        <section id="view-exam" class="view-section hidden space-y-6">
+            <!-- Exam Header -->
+            <div class="flex justify-between items-center border-b border-gray-800 pb-4">
+                <div>
+                    <span id="examSessionTitle" class="text-xs text-pink-400 font-bold uppercase tracking-wider">Setoran Resmi</span>
+                    <h2 class="font-display text-lg font-bold text-white" id="examStudentDisplay">Siswa: -</h2>
+                </div>
+                
+                <!-- Timer Bar & Circular Count -->
+                <div class="flex items-center space-x-3 bg-gray-900 px-4 py-2 rounded-xl border border-pink-500/30">
+                    <i class="fa-solid fa-clock text-amber-400 text-lg"></i>
+                    <div>
+                        <div class="text-xs text-gray-400">Sisa Waktu</div>
+                        <div id="examTimer" class="font-display text-xl font-extrabold text-amber-300">10s</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="space-y-1">
+                <div class="flex justify-between text-xs text-gray-400 font-medium">
+                    <span>Soal <span id="currentExamIndex" class="text-white font-bold">1</span> dari 20</span>
+                    <span id="examProgressPercent">5%</span>
+                </div>
+                <div class="w-full bg-gray-800 h-2.5 rounded-full overflow-hidden">
+                    <div id="examProgressBar" class="bg-gradient-to-r from-pink-500 to-indigo-500 h-full w-[5%] transition-all duration-300"></div>
+                </div>
+            </div>
+
+            <!-- Exam Question Card -->
+            <div class="max-w-md mx-auto glass-panel p-6 sm:p-8 rounded-3xl border border-pink-500/20 text-center space-y-6 shadow-2xl">
+                <div class="bg-space-dark/90 rounded-2xl p-8 border border-gray-800">
+                    <div id="examQuestionText" class="font-display text-5xl sm:text-6xl font-black text-white tracking-widest">
+                        8 × 7 = ?
+                    </div>
+                </div>
+
+                <!-- Numpad or Multiple Choice Options -->
+                <div class="grid grid-cols-2 gap-3" id="examOptions">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= VIEW 4: EXAM RESULT SUMMARY ================= -->
+        <section id="view-exam-result" class="view-section hidden space-y-6 text-center max-w-lg mx-auto">
+            <div class="glass-panel p-8 rounded-3xl border border-indigo-500/30 space-y-6 shadow-2xl">
+                <div id="resultBadgeIcon" class="w-20 h-20 mx-auto rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-4xl floating">
+                    <i class="fa-solid fa-trophy"></i>
+                </div>
+
+                <div>
+                    <h2 id="resultTitle" class="font-display text-3xl font-extrabold text-white">Selamat! Kamu Lulus!</h2>
+                    <p id="resultSubtitle" class="text-sm text-gray-300 mt-1">Sesi setoran resmi telah diselesaikan dan tersimpan.</p>
+                </div>
+
+                <!-- Score Highlights -->
+                <div class="grid grid-cols-3 gap-3 bg-space-dark/80 p-4 rounded-2xl border border-gray-800">
+                    <div>
+                        <div class="text-xs text-gray-400">Nilai Akhir</div>
+                        <div id="resultScore" class="font-display text-2xl font-bold text-amber-400">90</div>
+                    </div>
+                    <div>
+                        <div class="text-xs text-gray-400">Jawaban Benar</div>
+                        <div id="resultCorrect" class="font-display text-2xl font-bold text-emerald-400">18</div>
+                    </div>
+                    <div>
+                        <div class="text-xs text-gray-400">Jawaban Salah</div>
+                        <div id="resultWrong" class="font-display text-2xl font-bold text-rose-400">2</div>
+                    </div>
+                </div>
+
+                <!-- Checkpoint status updated message -->
+                <div id="checkpointUpdateNotice" class="p-3 bg-indigo-950/60 border border-indigo-500/30 rounded-xl text-xs text-indigo-200">
+                    <i class="fa-solid fa-circle-check text-indigo-400 mr-1"></i> Status Checkpoint perkalian telah diperbarui di database!
+                </div>
+
+                <button onclick="switchView('home')" class="w-full py-3.5 bg-gradient-to-r from-indigo-600 to-pink-600 hover:from-indigo-500 hover:to-pink-500 text-white font-display font-bold text-base rounded-xl btn-space">
+                    Kembali ke Beranda
+                </button>
+            </div>
+        </section>
+
+        <!-- ================= VIEW 5: TEACHER DASHBOARD ================= -->
+        <section id="view-teacher" class="view-section hidden space-y-6">
+            <!-- Header -->
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-gray-800 pb-4">
+                <div>
+                    <span class="text-xs text-amber-400 font-bold uppercase tracking-wider">Panel Kontrol Guru</span>
+                    <h2 class="font-display text-2xl font-bold text-white">Dashboard Kelola Perkalian</h2>
+                </div>
+                <button onclick="switchView('home')" class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-xs text-gray-200 rounded-xl font-semibold border border-gray-700">
+                    <i class="fa-solid fa-house mr-1"></i> Tampilan Siswa
+                </button>
+            </div>
+
+            <!-- Dashboard Summary Cards -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="glass-card p-4 rounded-2xl border border-gray-800 space-y-1">
+                    <div class="text-xs text-gray-400 font-medium">Total Siswa</div>
+                    <div id="dashTotalStudents" class="font-display text-2xl font-bold text-white">0</div>
+                </div>
+                <div class="glass-card p-4 rounded-2xl border border-emerald-500/20 space-y-1">
+                    <div class="text-xs text-emerald-400 font-medium">Siswa Lulus Misi</div>
+                    <div id="dashPassedStudents" class="font-display text-2xl font-bold text-emerald-400">0</div>
+                </div>
+                <div class="glass-card p-4 rounded-2xl border border-rose-500/20 space-y-1">
+                    <div class="text-xs text-rose-400 font-medium">Belum Lulus</div>
+                    <div id="dashFailedStudents" class="font-display text-2xl font-bold text-rose-400">0</div>
+                </div>
+                <div class="glass-card p-4 rounded-2xl border border-amber-500/20 space-y-1">
+                    <div class="text-xs text-amber-400 font-medium">Sesi Aktif</div>
+                    <div id="dashActiveSessions" class="font-display text-2xl font-bold text-amber-400">0</div>
+                </div>
+            </div>
+
+            <!-- Action Tabs / Management Panels -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                
+                <!-- Left: Create New Session Form -->
+                <div class="glass-panel p-6 rounded-2xl space-y-4 border border-indigo-500/20">
+                    <h3 class="font-display text-lg font-bold text-white flex items-center">
+                        <i class="fa-solid fa-plus-circle text-indigo-400 mr-2"></i> Buat Sesi Setoran Baru
+                    </h3>
+
+                    <form id="createSessionForm" onsubmit="handleCreateSession(event)" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-300 mb-1">Judul / Nama Sesi Evaluasi</label>
+                            <input type="text" id="sessionTitle" placeholder="Contoh: Setoran Perkalian 3 & 4" required class="w-full bg-space-dark border border-gray-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-300 mb-1">Pilih Tabel Perkalian Diujikan</label>
+                            <div class="grid grid-cols-4 gap-2" id="sessionTableCheckboxes">
+                                <!-- Generated JS: perkalian 2 - 9 checkboxes -->
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-300 mb-1">Waktu Per Soal</label>
+                                <select id="sessionTimePerQuestion" class="w-full bg-space-dark border border-gray-700 rounded-xl px-3 py-2 text-xs text-white">
+                                    <option value="7">7 Detik (Cepat)</option>
+                                    <option value="10" selected>10 Detik (Sedang)</option>
+                                    <option value="15">15 Detik (Santai)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-300 mb-1">Min. Benar Lulus</label>
+                                <input type="number" id="sessionPassingScore" min="1" max="20" value="16" required class="w-full bg-space-dark border border-gray-700 rounded-xl px-3 py-2 text-xs text-white">
+                                <span class="text-[10px] text-gray-400">Dari total 20 soal</span>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-display font-bold text-sm rounded-xl btn-space flex items-center justify-center">
+                            <i class="fa-solid fa-key mr-2"></i> Generate Token Sesi
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Right: Student List & Exam Results -->
+                <div class="lg:col-span-2 space-y-6">
+                    <!-- Student Management -->
+                    <div class="glass-panel p-6 rounded-2xl space-y-4">
+                        <div class="flex justify-between items-center">
+                            <h3 class="font-display text-lg font-bold text-white flex items-center">
+                                <i class="fa-solid fa-users text-amber-400 mr-2"></i> Daftar Siswa
+                            </h3>
+                            <button onclick="promptAddStudent()" class="px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold text-xs rounded-lg">
+                                + Tambah Siswa
+                            </button>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs text-gray-300">
+                                <thead class="bg-space-dark/80 text-gray-400 uppercase font-semibold">
+                                    <tr>
+                                        <th class="p-3">Nama Siswa</th>
+                                        <th class="p-3">Kelas</th>
+                                        <th class="p-3">Progres Checkpoint (×2-×9)</th>
+                                        <th class="p-3 text-right">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="studentTableBody" class="divide-y divide-gray-800">
+                                    <!-- Populated JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Active Tokens & Sesi Setoran -->
+                    <div class="glass-panel p-6 rounded-2xl space-y-4">
+                        <h3 class="font-display text-lg font-bold text-white flex items-center">
+                            <i class="fa-solid fa-list-check text-pink-400 mr-2"></i> Sesi Setoran Resmi Active & Riwayat
+                        </h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs text-gray-300">
+                                <thead class="bg-space-dark/80 text-gray-400 uppercase font-semibold">
+                                    <tr>
+                                        <th class="p-3">Token</th>
+                                        <th class="p-3">Judul Sesi</th>
+                                        <th class="p-3">Cakupan</th>
+                                        <th class="p-3">Timer/Soal</th>
+                                        <th class="p-3 text-right">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="sessionTableBody" class="divide-y divide-gray-800">
+                                    <!-- Populated JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="relative z-10 border-t border-gray-800/80 p-4 text-center text-xs text-gray-500 glass-panel">
+        <p>Jago Perkalian &copy; 2026 - Aplikasi Pembelajaran Interaktif Sekolah Dasar</p>
+    </footer>
+
+    <!-- ================= MODALS ================= -->
+
+    <!-- Modal 0: Custom Confirmation Delete Modal -->
+    <div id="deleteConfirmModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm hidden">
+        <div class="glass-panel max-w-sm w-full p-6 rounded-2xl border border-rose-500/40 space-y-4 text-center">
+            <div class="w-12 h-12 bg-rose-500/20 text-rose-400 rounded-full flex items-center justify-center mx-auto text-xl">
+                <i class="fa-solid fa-user-xmark"></i>
+            </div>
+            <h3 class="font-display text-xl font-bold text-white">Hapus Data Siswa</h3>
+            <p class="text-xs text-gray-300" id="deleteConfirmMessage">Apakah Anda yakin ingin menghapus data siswa ini?</p>
+            
+            <div class="flex space-x-2 pt-2">
+                <button type="button" onclick="closeDeleteModal()" class="w-1/2 py-2.5 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-xl text-xs font-semibold">Batal</button>
+                <button type="button" id="btnConfirmDeleteAction" class="w-1/2 py-2.5 bg-rose-600 hover:bg-rose-500 text-white font-bold rounded-xl text-xs btn-space">Ya, Hapus</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 0B: Custom Add Student Modal -->
+    <div id="addStudentModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm hidden">
+        <div class="glass-panel max-w-sm w-full p-6 rounded-2xl border border-indigo-500/40 space-y-4 text-center">
+            <div class="w-12 h-12 bg-indigo-500/20 text-indigo-400 rounded-full flex items-center justify-center mx-auto text-xl">
+                <i class="fa-solid fa-user-plus"></i>
+            </div>
+            <h3 class="font-display text-xl font-bold text-white">Tambah Siswa Baru</h3>
+            
+            <form id="addStudentForm" onsubmit="executeAddStudent(event)" class="space-y-3 text-left">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-300 mb-1">Nama Lengkap Siswa</label>
+                    <input type="text" id="addStudentNameInput" placeholder="Contoh: Budi Santoso" required class="w-full bg-space-dark border border-gray-700 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-300 mb-1">Kelas</label>
+                    <input type="text" id="addStudentClassInput" value="Kelas 3A" placeholder="Contoh: Kelas 3A" required class="w-full bg-space-dark border border-gray-700 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
+                </div>
+
+                <div class="flex space-x-2 pt-2">
+                    <button type="button" onclick="closeAddStudentModal()" class="w-1/2 py-2.5 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-xl text-xs font-semibold">Batal</button>
+                    <button type="submit" class="w-1/2 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl text-xs btn-space">Simpan Siswa</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal 1: Enter Token Modal -->
+    <div id="examTokenModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm hidden">
+        <div class="glass-panel max-w-sm w-full p-6 rounded-2xl border border-pink-500/30 space-y-4 text-center">
+            <div class="w-12 h-12 bg-pink-500/20 text-pink-400 rounded-full flex items-center justify-center mx-auto text-xl">
+                <i class="fa-solid fa-key"></i>
+            </div>
+            <h3 class="font-display text-xl font-bold text-white">Masukkan Token Setoran</h3>
+            <p class="text-xs text-gray-300">Minta kode token 6 digit dari Gurumu untuk memulai ujian resmi.</p>
+            
+            <input type="text" id="tokenInput" maxlength="6" onkeydown="if(event.key === 'Enter') { event.preventDefault(); submitExamToken(); }" placeholder="Contoh: PERK23" class="w-full bg-space-dark border border-pink-500/50 rounded-xl px-4 py-3 text-center text-2xl font-mono font-bold tracking-widest text-pink-300 uppercase focus:outline-none focus:ring-2 focus:ring-pink-500">
+            
+            <div class="flex space-x-2">
+                <button type="button" onclick="closeExamModal()" class="w-1/2 py-2.5 bg-gray-800 text-gray-300 rounded-xl text-xs font-semibold">Batal</button>
+                <button type="button" id="btnStartExamSubmit" onclick="submitExamToken()" class="w-1/2 py-2.5 bg-pink-600 hover:bg-pink-500 text-white font-bold rounded-xl text-xs btn-space cursor-pointer">Mulai Ujian</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 2: Change Role / Teacher Login Modal -->
+    <div id="roleModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm hidden">
+        <div class="glass-panel max-w-sm w-full p-6 rounded-2xl border border-indigo-500/30 space-y-4 text-center">
+            <h3 class="font-display text-xl font-bold text-white">Ganti Peran Pengguna</h3>
+            <p class="text-xs text-gray-300">Pilih akses halaman yang ingin dituju:</p>
+            
+            <div class="space-y-2">
+                <button onclick="selectRole('student')" class="w-full p-3 bg-indigo-950/80 border border-indigo-500/40 rounded-xl text-left hover:bg-indigo-900/80 transition flex items-center justify-between">
+                    <div>
+                        <div class="font-bold text-sm text-indigo-200">Halaman Siswa</div>
+                        <div class="text-[10px] text-gray-400">Untuk belajar dan mengikuti setoran</div>
+                    </div>
+                    <i class="fa-solid fa-user-astronaut text-indigo-400"></i>
+                </button>
+
+                <button onclick="selectRole('teacher')" class="w-full p-3 bg-amber-950/80 border border-amber-500/40 rounded-xl text-left hover:bg-amber-900/80 transition flex items-center justify-between">
+                    <div>
+                        <div class="font-bold text-sm text-amber-200">Dashboard Guru</div>
+                        <div class="text-[10px] text-gray-400">Kelola siswa, token, dan nilai</div>
+                    </div>
+                    <i class="fa-solid fa-chalkboard-user text-amber-400"></i>
+                </button>
+            </div>
+
+            <button onclick="toggleUserRoleModal()" class="w-full py-2 bg-gray-800 text-xs text-gray-400 rounded-xl">Tutup</button>
+        </div>
+    </div>
+
+    <!-- AUDIO SYNTHESIZER FOR SOUND EFFECTS (No external audio file issues) -->
+    <script>
+        // Web Audio API Sound Generator for Feedback
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function playSound(type) {
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            if (type === 'correct') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(587.33, audioCtx.currentTime); // D5
+                osc.frequency.setValueAtTime(880, audioCtx.currentTime + 0.1); // A5
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.3);
+            } else if (type === 'wrong') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(220, audioCtx.currentTime); // A3
+                osc.frequency.setValueAtTime(164.81, audioCtx.currentTime + 0.15); // E3
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.4);
+            }
+        }
+    </script>
+
+    <!-- CORE APPLICATION LOGIC JS -->
+    <script>
+        /* ================= STATE & INITIAL DATA ================= */
+        const APP_STORAGE_KEY = 'JAGO_PERKALIAN_DATA_V1';
+
+        let appData = {
+            students: [
+                { id: 's1', name: 'Budi Santoso', class: 'Kelas 3A' },
+                { id: 's2', name: 'Siti Aminah', class: 'Kelas 3A' },
+                { id: 's3', name: 'Doni Pratama', class: 'Kelas 3A' }
+            ],
+            sessions: [
+                {
+                    id: 'ses1',
+                    token: 'PERK23',
+                    title: 'Setoran Perkalian 2 & 3',
+                    tables: [2, 3],
+                    timePerQuestion: 10,
+                    passingScore: 16,
+                    isActive: true
+                }
+            ],
+            checkpoints: {
+                's1_2': 'LULUS',
+                's1_3': 'BELUM_SETOR'
+            },
+            examResults: []
+        };
+
+        let activeStudentId = null;
+        let selectedPracticeTable = 2;
+        let currentSubGame = 'mcq'; // 'mcq', 'input', 'tf', 'match'
+        let currentPracticeQuestion = null;
+        let practiceStats = { total: 0, correct: 0 };
+
+        // Matching game state
+        let matchSelectedCard = null;
+        let matchCards = [];
+
+        // Active Exam State
+        let activeExamSession = null;
+        let examQuestions = [];
+        let currentExamIndex = 0;
+        let examAnswers = [];
+        let examTimerInterval = null;
+        let examTimeLeft = 10;
+
+        /* ================= INITIALIZATION ================= */
+        window.onload = function() {
+            generateStarfield();
+            loadStateFromStorage();
+            populateStudentDropdown();
+            renderCheckpointMap();
+            renderTeacherDashboard();
+            renderPracticeTableButtons();
+            renderSessionTableCheckboxes();
+        };
+
+        function generateStarfield() {
+            const container = document.getElementById('starsContainer');
+            for (let i = 0; i < 60; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.width = `${Math.random() * 3 + 1}px`;
+                star.style.height = star.style.width;
+                star.style.top = `${Math.random() * 100}%`;
+                star.style.left = `${Math.random() * 100}%`;
+                star.style.setProperty('--duration', `${Math.random() * 3 + 2}s`);
+                container.appendChild(star);
+            }
+        }
+
+        /* ================= LOCAL STORAGE HELPERS ================= */
+        function loadStateFromStorage() {
+            const stored = localStorage.getItem(APP_STORAGE_KEY);
+            if (stored) {
+                try {
+                    appData = JSON.parse(stored);
+                } catch(e) {
+                    console.error("Gagal memuat data lokal:", e);
+                }
+            } else {
+                saveStateToStorage();
+            }
+        }
+
+        function saveStateToStorage() {
+            localStorage.setItem(APP_STORAGE_KEY, JSON.stringify(appData));
+        }
+
+        /* ================= VIEW NAVIGATION ================= */
+        function switchView(viewName) {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
+            const target = document.getElementById(`view-${viewName}`);
+            if (target) {
+                target.classList.remove('hidden');
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function toggleUserRoleModal() {
+            const modal = document.getElementById('roleModal');
+            modal.classList.toggle('hidden');
+        }
+
+        function selectRole(role) {
+            toggleUserRoleModal();
+            if (role === 'teacher') {
+                renderTeacherDashboard();
+                switchView('teacher');
+            } else {
+                switchView('home');
+            }
+        }
+
+        /* ================= STUDENT MANAGEMENT & BADGE ================= */
+        function populateStudentDropdown() {
+            const select = document.getElementById('studentSelect');
+            select.innerHTML = '<option value="">-- Pilih Nama Siswa --</option>';
+            appData.students.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s.id;
+                opt.textContent = `${s.name} (${s.class})`;
+                select.appendChild(opt);
+            });
+
+            if (activeStudentId) {
+                select.value = activeStudentId;
+            }
+        }
+
+        function onStudentSelectChange() {
+            const select = document.getElementById('studentSelect');
+            activeStudentId = select.value;
+            
+            const badge = document.getElementById('studentBadge');
+            const display = document.getElementById('activeStudentNameDisplay');
+
+            if (activeStudentId) {
+                const s = appData.students.find(x => x.id === activeStudentId);
+                display.textContent = s ? s.name : 'Pilih Siswa';
+                badge.classList.remove('hidden');
+            } else {
+                display.textContent = 'Pilih Siswa';
+                badge.classList.add('hidden');
+            }
+
+            renderCheckpointMap();
+        }
+
+        /* ================= CHECKPOINT MAP SYSTEM ================= */
+        function renderCheckpointMap() {
+            const container = document.getElementById('checkpointMap');
+            container.innerHTML = '';
+
+            // Tables 2 to 9
+            for (let t = 2; t <= 9; t++) {
+                let status = 'BELUM_SETOR';
+                if (activeStudentId) {
+                    const key = `${activeStudentId}_${t}`;
+                    status = appData.checkpoints[key] || 'BELUM_SETOR';
+                }
+
+                let badgeColor = 'bg-gray-800 text-gray-400 border-gray-700';
+                let icon = 'fa-lock text-gray-500';
+                let statusLabel = 'Belum Setor';
+
+                if (status === 'LULUS') {
+                    badgeColor = 'bg-emerald-950/80 text-emerald-300 border-emerald-500/50 shadow-emerald-900/30';
+                    icon = 'fa-circle-check text-emerald-400';
+                    statusLabel = 'LULUS! 🎉';
+                } else if (status === 'BELUM_LULUS') {
+                    badgeColor = 'bg-rose-950/80 text-rose-300 border-rose-500/50';
+                    icon = 'fa-xmark-circle text-rose-400';
+                    statusLabel = 'Coba Lagi';
+                }
+
+                const card = document.createElement('div');
+                card.className = `glass-card p-4 rounded-xl border flex flex-col items-center text-center space-y-2 transition ${badgeColor}`;
+                card.innerHTML = `
+                    <div class="w-10 h-10 rounded-full bg-space-dark flex items-center justify-center text-lg">
+                        <i class="fa-solid ${icon}"></i>
+                    </div>
+                    <div>
+                        <div class="font-display font-bold text-base text-white">Tabel ×${t}</div>
+                        <div class="text-[10px] font-semibold tracking-wider uppercase mt-0.5">${statusLabel}</div>
+                    </div>
+                `;
+                container.appendChild(card);
+            }
+        }
+
+        /* ================= MODE LATIHAN MANDIRI ================= */
+        function renderPracticeTableButtons() {
+            const container = document.getElementById('practiceTableButtons');
+            container.innerHTML = '';
+            for (let t = 2; t <= 9; t++) {
+                const btn = document.createElement('button');
+                btn.className = `px-3.5 py-1.5 rounded-xl font-display font-bold text-xs transition ${
+                    selectedPracticeTable === t 
+                    ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/40' 
+                    : 'bg-space-dark text-gray-400 hover:text-white border border-gray-800'
+                }`;
+                btn.textContent = `Tabel ×${t}`;
+                btn.onclick = () => {
+                    selectedPracticeTable = t;
+                    renderPracticeTableButtons();
+                    nextPracticeQuestion();
+                };
+                container.appendChild(btn);
+            }
+        }
+
+        function selectSubGame(gameType) {
+            currentSubGame = gameType;
+            ['mcq', 'input', 'tf', 'match'].forEach(g => {
+                const btn = document.getElementById(`subGameBtn-${g}`);
+                const container = document.getElementById(`subGameContainer-${g}`);
+                if (g === gameType) {
+                    btn.className = "py-2 px-3 rounded-xl font-display text-xs font-bold transition flex items-center justify-center space-x-1.5 bg-indigo-600 text-white shadow-md";
+                    container.classList.remove('hidden');
+                } else {
+                    btn.className = "py-2 px-3 rounded-xl font-display text-xs font-bold transition flex items-center justify-center space-x-1.5 text-gray-400 hover:text-white";
+                    container.classList.add('hidden');
+                }
+            });
+            nextPracticeQuestion();
+        }
+
+        function startPracticeMode() {
+            if (!activeStudentId) {
+                alert("Silakan pilih Nama Siswa terlebih dahulu di Halaman Utama!");
+                return;
+            }
+            switchView('practice');
+            practiceStats = { total: 0, correct: 0 };
+            updatePracticeStatsDisplay();
+            selectSubGame('mcq');
+        }
+
+        function nextPracticeQuestion() {
+            document.getElementById('practiceFeedback').textContent = '';
+            document.getElementById('practiceFeedback').className = 'h-10 flex items-center justify-center font-display text-base rounded-xl transition';
+
+            const num2 = Math.floor(Math.random() * 10) + 1; // 1 - 10
+            const answer = selectedPracticeTable * num2;
+            currentPracticeQuestion = { num1: selectedPracticeTable, num2, answer };
+
+            if (currentSubGame === 'mcq') {
+                document.getElementById('practiceQuestionText').textContent = `${selectedPracticeTable} × ${num2}`;
+                const options = new Set([answer]);
+                while (options.size < 4) {
+                    const dummy = selectedPracticeTable * (Math.floor(Math.random() * 10) + 1) + (Math.floor(Math.random() * 5) - 2);
+                    if (dummy > 0) options.add(dummy);
+                }
+                const optionsArr = Array.from(options).sort(() => Math.random() - 0.5);
+                const container = document.getElementById('practiceOptions');
+                container.innerHTML = '';
+                optionsArr.forEach(opt => {
+                    const btn = document.createElement('button');
+                    btn.className = 'py-4 bg-space-dark hover:bg-indigo-900/40 border border-gray-700 hover:border-indigo-500 rounded-xl font-display text-2xl font-bold text-white transition btn-space';
+                    btn.textContent = opt;
+                    btn.onclick = () => answerPractice(opt);
+                    container.appendChild(btn);
+                });
+            } else if (currentSubGame === 'input') {
+                document.getElementById('inputQuestionText').textContent = `${selectedPracticeTable} × ${num2} = ?`;
+                const inputEl = document.getElementById('practiceNumberInput');
+                inputEl.value = '';
+                inputEl.focus();
+            } else if (currentSubGame === 'tf') {
+                const isReal = Math.random() > 0.5;
+                let displayAns = answer;
+                if (!isReal) {
+                    const offset = (Math.floor(Math.random() * 3) + 1) * (Math.random() > 0.5 ? 1 : -1);
+                    displayAns = Math.max(1, answer + offset);
+                }
+                currentPracticeQuestion.isTrueStatement = (displayAns === answer);
+                document.getElementById('tfQuestionText').textContent = `${selectedPracticeTable} × ${num2} = ${displayAns}`;
+            } else if (currentSubGame === 'match') {
+                renderMatchGame();
+            }
+        }
+
+        function submitInputAnswer() {
+            const val = parseInt(document.getElementById('practiceNumberInput').value);
+            if (isNaN(val)) return;
+            answerPractice(val);
+        }
+
+        function answerTrueFalse(userChoice) {
+            practiceStats.total++;
+            const feedback = document.getElementById('practiceFeedback');
+            if (userChoice === currentPracticeQuestion.isTrueStatement) {
+                practiceStats.correct++;
+                playSound('correct');
+                feedback.textContent = '🎉 Hebat! Analisis Tepat!';
+                feedback.className = 'h-10 flex items-center justify-center font-display text-sm font-bold rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
+            } else {
+                playSound('wrong');
+                feedback.textContent = `❌ Kurang Tepat! ${selectedPracticeTable} × ${currentPracticeQuestion.num2} = ${currentPracticeQuestion.answer}`;
+                feedback.className = 'h-10 flex items-center justify-center font-display text-xs font-bold rounded-xl bg-rose-500/20 text-rose-400 border border-rose-500/30';
+            }
+            updatePracticeStatsDisplay();
+            setTimeout(nextPracticeQuestion, 1500);
+        }
+
+        function renderMatchGame() {
+            matchSelectedCard = null;
+            const container = document.getElementById('matchCardGrid');
+            container.innerHTML = '';
+            
+            // Pick 3 random multipliers
+            const multipliers = [];
+            while(multipliers.length < 3) {
+                const r = Math.floor(Math.random() * 10) + 1;
+                if (!multipliers.includes(r)) multipliers.push(r);
+            }
+
+            matchCards = [];
+            multipliers.forEach((m, idx) => {
+                const ans = selectedPracticeTable * m;
+                matchCards.push({ id: `q_${idx}`, pairId: idx, text: `${selectedPracticeTable} × ${m}`, type: 'q' });
+                matchCards.push({ id: `a_${idx}`, pairId: idx, text: `${ans}`, type: 'a' });
+            });
+
+            // Shuffle
+            matchCards.sort(() => Math.random() - 0.5);
+
+            matchCards.forEach(card => {
+                const btn = document.createElement('button');
+                btn.id = `card_${card.id}`;
+                btn.className = 'py-4 px-2 bg-space-dark hover:bg-indigo-900/40 border border-gray-700 rounded-xl font-display text-lg font-bold text-white transition btn-space';
+                btn.textContent = card.text;
+                btn.onclick = () => handleMatchCardClick(card);
+                container.appendChild(btn);
+            });
+        }
+
+        function handleMatchCardClick(card) {
+            const btn = document.getElementById(`card_${card.id}`);
+            if (btn.disabled) return;
+
+            if (!matchSelectedCard) {
+                matchSelectedCard = card;
+                btn.classList.add('border-indigo-500', 'bg-indigo-900/60', 'scale-105');
+            } else if (matchSelectedCard.id === card.id) {
+                // Deselect
+                matchSelectedCard = null;
+                btn.classList.remove('border-indigo-500', 'bg-indigo-900/60', 'scale-105');
+            } else {
+                // Compare
+                const firstBtn = document.getElementById(`card_${matchSelectedCard.id}`);
+                practiceStats.total++;
+
+                if (matchSelectedCard.pairId === card.pairId && matchSelectedCard.type !== card.type) {
+                    // Match!
+                    practiceStats.correct++;
+                    playSound('correct');
+                    firstBtn.className = 'py-4 px-2 bg-emerald-950/80 border border-emerald-500 text-emerald-300 rounded-xl font-display text-lg font-bold opacity-60';
+                    btn.className = 'py-4 px-2 bg-emerald-950/80 border border-emerald-500 text-emerald-300 rounded-xl font-display text-lg font-bold opacity-60';
+                    firstBtn.disabled = true;
+                    btn.disabled = true;
+                    matchSelectedCard = null;
+
+                    // Check if all matched
+                    const remaining = matchCards.filter(c => !document.getElementById(`card_${c.id}`).disabled);
+                    if (remaining.length === 0) {
+                        const feedback = document.getElementById('practiceFeedback');
+                        feedback.textContent = '🎉 Semua Kartu Berhasil Dijodohkan!';
+                        feedback.className = 'h-10 flex items-center justify-center font-display text-sm font-bold rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
+                        setTimeout(nextPracticeQuestion, 1600);
+                    }
+                } else {
+                    // Wrong Match
+                    playSound('wrong');
+                    firstBtn.classList.remove('border-indigo-500', 'bg-indigo-900/60', 'scale-105');
+                    firstBtn.classList.add('border-rose-500', 'bg-rose-950/50');
+                    btn.classList.add('border-rose-500', 'bg-rose-950/50');
+
+                    setTimeout(() => {
+                        firstBtn.classList.remove('border-rose-500', 'bg-rose-950/50');
+                        btn.classList.remove('border-rose-500', 'bg-rose-950/50');
+                    }, 800);
+
+                    matchSelectedCard = null;
+                }
+                updatePracticeStatsDisplay();
+            }
+        }
+
+        function answerPractice(selected) {
+            const feedback = document.getElementById('practiceFeedback');
+            practiceStats.total++;
+
+            if (selected === currentPracticeQuestion.answer) {
+                practiceStats.correct++;
+                playSound('correct');
+                feedback.textContent = '🎉 Hebat! Jawabanmu Benar!';
+                feedback.className = 'h-10 flex items-center justify-center font-display text-sm font-bold rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
+            } else {
+                playSound('wrong');
+                feedback.textContent = `❌ Kurang Tepat! Jawaban yang benar: ${currentPracticeQuestion.answer}`;
+                feedback.className = 'h-10 flex items-center justify-center font-display text-xs font-bold rounded-xl bg-rose-500/20 text-rose-400 border border-rose-500/30';
+            }
+
+            updatePracticeStatsDisplay();
+            setTimeout(nextPracticeQuestion, 1500);
+        }
+
+        function updatePracticeStatsDisplay() {
+            document.getElementById('practiceCount').textContent = practiceStats.total;
+            const acc = practiceStats.total === 0 ? 100 : Math.round((practiceStats.correct / practiceStats.total) * 100);
+            document.getElementById('practiceAccuracy').textContent = `${acc}%`;
+        }
+
+        /* ================= MODE SETORAN RESMI (EXAM WITH TOKEN) ================= */
+        function openExamModal() {
+            if (!activeStudentId) {
+                alert("Pilih Nama Siswa terlebih dahulu di Halaman Utama!");
+                return;
+            }
+            const tokenInput = document.getElementById('tokenInput');
+            if (tokenInput) {
+                tokenInput.value = '';
+            }
+            const modal = document.getElementById('examTokenModal');
+            if (modal) {
+                modal.classList.remove('hidden');
+                setTimeout(() => {
+                    const input = document.getElementById('tokenInput');
+                    if (input) input.focus();
+                }, 100);
+            }
+        }
+
+        function closeExamModal() {
+            const modal = document.getElementById('examTokenModal');
+            if (modal) modal.classList.add('hidden');
+        }
+
+        function submitExamToken() {
+            const tokenInput = document.getElementById('tokenInput');
+            if (!tokenInput) {
+                alert("Form token tidak ditemukan.");
+                return;
+            }
+            
+            const rawToken = tokenInput.value || '';
+            const token = rawToken.trim().toUpperCase();
+            
+            if (!token) {
+                alert("Silakan masukkan kode token terlebih dahulu!");
+                return;
+            }
+
+            // Cari sesi aktif dengan token yang sesuai (case-insensitive & spasi-insensitive)
+            const session = appData.sessions.find(s => 
+                s.token && s.token.toString().trim().toUpperCase() === token && s.isActive
+            );
+
+            if (!session) {
+                alert(`Token "${token}" tidak ditemukan atau sesi sudah tidak aktif. Silakan periksa kembali token dari Guru!`);
+                return;
+            }
+
+            activeExamSession = session;
+            closeExamModal();
+            
+            // Pindah ke layar ujian dan jalankan setoran resmi
+            startOfficialExam();
+        }
+
+        function startOfficialExam() {
+            if (!activeExamSession) return;
+            
+            const student = appData.students.find(s => s.id === activeStudentId);
+            
+            // Switch view terlebih dahulu agar elemen DOM aktif sepenuhnya
+            switchView('exam');
+
+            // Set detail teks sesi & nama siswa
+            const sessionTitle = document.getElementById('examSessionTitle');
+            const studentDisplay = document.getElementById('examStudentDisplay');
+            
+            if (sessionTitle) sessionTitle.textContent = activeExamSession.title || 'Setoran Resmi';
+            if (studentDisplay) studentDisplay.textContent = `Siswa: ${student ? student.name : '-'}`;
+
+            // Generate 20 Soal Acak sesuai tabel sesi
+            examQuestions = [];
+            const validTables = (activeExamSession.tables && activeExamSession.tables.length > 0) 
+                ? activeExamSession.tables 
+                : [2];
+
+            for (let i = 0; i < 20; i++) {
+                const table = validTables[Math.floor(Math.random() * validTables.length)];
+                const multiplier = Math.floor(Math.random() * 10) + 1; // 1-10
+                examQuestions.push({
+                    table,
+                    multiplier,
+                    answer: table * multiplier
+                });
+            }
+
+            currentExamIndex = 0;
+            examAnswers = [];
+
+            // Render soal pertama
+            renderExamQuestion();
+        }
+
+        function renderExamQuestion() {
+            if (currentExamIndex >= examQuestions.length) {
+                finishOfficialExam();
+                return;
+            }
+
+            const q = examQuestions[currentExamIndex];
+            
+            // Reset & Start Timer
+            clearInterval(examTimerInterval);
+            examTimeLeft = activeExamSession.timePerQuestion || 10;
+            updateTimerDisplay();
+
+            examTimerInterval = setInterval(() => {
+                examTimeLeft--;
+                updateTimerDisplay();
+                if (examTimeLeft <= 0) {
+                    clearInterval(examTimerInterval);
+                    answerExamQuestion(null, true); // Timeout = wrong answer
+                }
+            }, 1000);
+
+            // Update Progress Bar
+            const currentIdxEl = document.getElementById('currentExamIndex');
+            const percentEl = document.getElementById('examProgressPercent');
+            const barEl = document.getElementById('examProgressBar');
+
+            if (currentIdxEl) currentIdxEl.textContent = currentExamIndex + 1;
+            const pct = Math.round(((currentExamIndex + 1) / 20) * 100);
+            if (percentEl) percentEl.textContent = `${pct}%`;
+            if (barEl) barEl.style.width = `${pct}%`;
+
+            // Update Question Text
+            const qTextEl = document.getElementById('examQuestionText');
+            if (qTextEl) qTextEl.textContent = `${q.table} × ${q.multiplier} = ?`;
+
+            // Generate MCQ Options
+            const options = new Set([q.answer]);
+            while (options.size < 4) {
+                const dummy = q.table * (Math.floor(Math.random() * 10) + 1) + (Math.floor(Math.random() * 5) - 2);
+                if (dummy > 0) options.add(dummy);
+            }
+            const optionsArr = Array.from(options).sort(() => Math.random() - 0.5);
+
+            const optionsContainer = document.getElementById('examOptions');
+            if (optionsContainer) {
+                optionsContainer.innerHTML = '';
+                optionsArr.forEach(opt => {
+                    const btn = document.createElement('button');
+                    btn.className = 'py-4 bg-space-dark hover:bg-pink-900/40 border border-gray-700 hover:border-pink-500 rounded-2xl font-display text-3xl font-bold text-white transition btn-space';
+                    btn.textContent = opt;
+                    btn.onclick = () => answerExamQuestion(opt, false);
+                    optionsContainer.appendChild(btn);
+                });
+            }
+        }
+
+        function updateTimerDisplay() {
+            const timerEl = document.getElementById('examTimer');
+            if (timerEl) {
+                timerEl.textContent = `${examTimeLeft}s`;
+                if (examTimeLeft <= 3) {
+                    timerEl.className = 'font-display text-xl font-extrabold text-rose-500 animate-pulse';
+                } else {
+                    timerEl.className = 'font-display text-xl font-extrabold text-amber-300';
+                }
+            }
+        }
+
+        function answerExamQuestion(selectedAnswer, isTimeout = false) {
+            clearInterval(examTimerInterval);
+            const q = examQuestions[currentExamIndex];
+            const isCorrect = !isTimeout && (selectedAnswer === q.answer);
+
+            if (isCorrect) {
+                playSound('correct');
+            } else {
+                playSound('wrong');
+            }
+
+            examAnswers.push({
+                question: `${q.table} × ${q.multiplier}`,
+                correctAnswer: q.answer,
+                userAnswer: selectedAnswer,
+                isCorrect
+            });
+
+            currentExamIndex++;
+            renderExamQuestion();
+        }
+
+        function finishOfficialExam() {
+            clearInterval(examTimerInterval);
+
+            const correctCount = examAnswers.filter(a => a.isCorrect).length;
+            const wrongCount = examAnswers.length - correctCount;
+            const score = Math.round((correctCount / 20) * 100);
+            const isPassed = correctCount >= activeExamSession.passingScore;
+
+            // Save Result to Database / Storage
+            const resultObj = {
+                id: 'res_' + Date.now(),
+                sessionId: activeExamSession.id,
+                studentId: activeStudentId,
+                score,
+                correctCount,
+                wrongCount,
+                isPassed,
+                completedAt: new Date().toISOString()
+            };
+            appData.examResults.push(resultObj);
+
+            // Update Checkpoints for testing tables if passed
+            activeExamSession.tables.forEach(t => {
+                const key = `${activeStudentId}_${t}`;
+                if (isPassed) {
+                    appData.checkpoints[key] = 'LULUS';
+                } else if (appData.checkpoints[key] !== 'LULUS') {
+                    appData.checkpoints[key] = 'BELUM_LULUS';
+                }
+            });
+
+            saveStateToStorage();
+            renderCheckpointMap();
+
+            // Display Results
+            document.getElementById('resultScore').textContent = score;
+            document.getElementById('resultCorrect').textContent = correctCount;
+            document.getElementById('resultWrong').textContent = wrongCount;
+
+            const title = document.getElementById('resultTitle');
+            const icon = document.getElementById('resultBadgeIcon');
+
+            if (isPassed) {
+                title.textContent = '🎉 Hore! Kamu LULUS!';
+                title.className = 'font-display text-3xl font-extrabold text-emerald-400';
+                icon.className = 'w-20 h-20 mx-auto rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-4xl floating';
+                icon.innerHTML = '<i class="fa-solid fa-trophy"></i>';
+            } else {
+                title.textContent = '💪 Belum Lulus, Tetap Semangat!';
+                title.className = 'font-display text-3xl font-extrabold text-rose-400';
+                icon.className = 'w-20 h-20 mx-auto rounded-full bg-rose-500/20 text-rose-400 flex items-center justify-center text-4xl';
+                icon.innerHTML = '<i class="fa-solid fa-rotate-left"></i>';
+            }
+
+            switchView('exam-result');
+        }
+
+        /* ================= TEACHER DASHBOARD LOGIC ================= */
+        function renderTeacherDashboard() {
+            // Stats calculation
+            const totalStudents = appData.students.length;
+            let passedCount = 0;
+            let failedCount = 0;
+
+            appData.students.forEach(s => {
+                // If student has at least one passed checkpoint
+                let passedAny = false;
+                for (let t = 2; t <= 9; t++) {
+                    if (appData.checkpoints[`${s.id}_${t}`] === 'LULUS') passedAny = true;
+                }
+                if (passedAny) passedCount++;
+                else failedCount++;
+            });
+
+            document.getElementById('dashTotalStudents').textContent = totalStudents;
+            document.getElementById('dashPassedStudents').textContent = passedCount;
+            document.getElementById('dashFailedStudents').textContent = failedCount;
+            document.getElementById('dashActiveSessions').textContent = appData.sessions.filter(s => s.isActive).length;
+
+            renderStudentTable();
+            renderSessionTable();
+        }
+
+        function renderStudentTable() {
+            const body = document.getElementById('studentTableBody');
+            body.innerHTML = '';
+
+            appData.students.forEach(s => {
+                // Checkpoint summary badges
+                let badgesHtml = '';
+                for (let t = 2; t <= 9; t++) {
+                    const status = appData.checkpoints[`${s.id}_${t}`] || 'BELUM_SETOR';
+                    let col = 'bg-gray-800 text-gray-500';
+                    if (status === 'LULUS') col = 'bg-emerald-500 text-black font-bold';
+                    else if (status === 'BELUM_LULUS') col = 'bg-rose-500/30 text-rose-300';
+
+                    badgesHtml += `<span class="inline-block px-1.5 py-0.5 rounded text-[10px] ${col} mr-1">×${t}</span>`;
+                }
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="p-3 font-semibold text-white">${s.name}</td>
+                    <td class="p-3 text-gray-400">${s.class}</td>
+                    <td class="p-3">${badgesHtml}</td>
+                    <td class="p-3 text-right space-x-2">
+                        <button onclick="editStudent('${s.id}')" class="px-2 py-1 bg-amber-500/20 border border-amber-500/40 text-amber-300 hover:bg-amber-500 hover:text-slate-900 rounded font-bold text-xs transition">Edit</button>
+                        <button onclick="deleteStudent('${s.id}')" class="px-2 py-1 bg-rose-500/20 border border-rose-500/40 text-rose-300 hover:bg-rose-500 hover:text-white rounded font-bold text-xs transition">Hapus</button>
+                    </td>
+                `;
+                body.appendChild(tr);
+            });
+        }
+
+        function editStudent(id) {
+            const student = appData.students.find(s => s.id === id);
+            if (!student) {
+                alert("Data siswa tidak ditemukan!");
+                return;
+            }
+
+            const currentName = student.name || "";
+            const currentClass = student.class || "Kelas 3A";
+
+            const newName = prompt("Ubah Nama Lengkap Siswa:", currentName);
+            if (newName === null) return; // Jika tombol batal ditekan
+            
+            const trimmedName = newName.trim();
+            if (!trimmedName) {
+                alert("Nama siswa tidak boleh kosong!");
+                return;
+            }
+
+            const newClass = prompt("Ubah Kelas Siswa:", currentClass);
+            if (newClass === null) return; // Jika tombol batal ditekan
+            
+            const trimmedClass = newClass.trim() ? newClass.trim() : "Kelas 3A";
+
+            // Update objek siswa dalam array
+            student.name = trimmedName;
+            student.class = trimmedClass;
+
+            // Simpan perubahan ke LocalStorage & perbarui antarmuka
+            saveStateToStorage();
+            populateStudentDropdown();
+            renderTeacherDashboard();
+
+            // Jika siswa yang diedit sedang aktif dipilih di menu utama, perbarui tampilannya
+            if (activeStudentId === id) {
+                onStudentSelectChange();
+            }
+
+            alert("Data siswa berhasil diperbarui!");
+        }
+
+        function promptAddStudent() {
+            const modal = document.getElementById('addStudentModal');
+            if (modal) {
+                const nameInput = document.getElementById('addStudentNameInput');
+                if (nameInput) nameInput.value = '';
+                modal.classList.remove('hidden');
+                setTimeout(() => {
+                    if (nameInput) nameInput.focus();
+                }, 100);
+            }
+        }
+
+        function closeAddStudentModal() {
+            const modal = document.getElementById('addStudentModal');
+            if (modal) {
+                modal.classList.add('hidden');
+            }
+        }
+
+        function executeAddStudent(e) {
+            e.preventDefault();
+            const nameInput = document.getElementById('addStudentNameInput');
+            const classInput = document.getElementById('addStudentClassInput');
+
+            const trimmedName = nameInput ? nameInput.value.trim() : '';
+            const trimmedClass = (classInput && classInput.value.trim()) ? classInput.value.trim() : 'Kelas 3A';
+
+            if (!trimmedName) {
+                alert("Nama siswa tidak boleh kosong!");
+                return;
+            }
+
+            const newStudent = {
+                id: 's_' + Date.now(),
+                name: trimmedName,
+                class: trimmedClass
+            };
+
+            appData.students.push(newStudent);
+
+            saveStateToStorage();
+            populateStudentDropdown();
+            renderTeacherDashboard();
+            closeAddStudentModal();
+        }
+
+        let pendingDeleteStudentId = null;
+
+        function deleteStudent(id) {
+            const student = appData.students.find(s => s.id === id);
+            if (!student) return;
+
+            pendingDeleteStudentId = id;
+            const messageEl = document.getElementById('deleteConfirmMessage');
+            if (messageEl) {
+                messageEl.textContent = `Apakah Anda yakin ingin menghapus data siswa "${student.name}"? Semua data checkpoint dan hasil setoran siswa ini akan dihapus.`;
+            }
+
+            const confirmBtn = document.getElementById('btnConfirmDeleteAction');
+            if (confirmBtn) {
+                confirmBtn.onclick = () => executeDeleteStudent(id);
+            }
+
+            const modal = document.getElementById('deleteConfirmModal');
+            if (modal) {
+                modal.classList.remove('hidden');
+            }
+        }
+
+        function closeDeleteModal() {
+            const modal = document.getElementById('deleteConfirmModal');
+            if (modal) {
+                modal.classList.add('hidden');
+            }
+            pendingDeleteStudentId = null;
+        }
+
+        function executeDeleteStudent(id) {
+            // 1. Hapus siswa dari daftar
+            appData.students = appData.students.filter(s => s.id !== id);
+
+            // 2. Bersihkan checkpoint siswa tersebut
+            for (let t = 2; t <= 9; t++) {
+                delete appData.checkpoints[`${id}_${t}`];
+            }
+
+            // 3. Bersihkan riwayat ujian siswa jika ada
+            if (appData.examResults) {
+                appData.examResults = appData.examResults.filter(r => r.studentId !== id);
+            }
+
+            // 4. Reset jika siswa yang dihapus sedang dipilih di menu utama
+            if (activeStudentId === id) {
+                activeStudentId = null;
+                const studentSelect = document.getElementById('studentSelect');
+                if (studentSelect) studentSelect.value = "";
+                onStudentSelectChange();
+            }
+
+            // 5. Simpan dan perbarui tampilan
+            saveStateToStorage();
+            populateStudentDropdown();
+            renderTeacherDashboard();
+            renderCheckpointMap();
+            closeDeleteModal();
+        }
+
+        function renderSessionTableCheckboxes() {
+            const container = document.getElementById('sessionTableCheckboxes');
+            container.innerHTML = '';
+            for (let t = 2; t <= 9; t++) {
+                container.innerHTML += `
+                    <label class="flex items-center space-x-1.5 bg-space-dark p-2 rounded-lg border border-gray-800 text-xs text-gray-300 cursor-pointer">
+                        <input type="checkbox" value="${t}" class="sessionTableCb rounded accent-indigo-500" ${t <= 3 ? 'checked' : ''}>
+                        <span>Tabel ×${t}</span>
+                    </label>
+                `;
+            }
+        }
+
+        function handleCreateSession(e) {
+            e.preventDefault();
+            const title = document.getElementById('sessionTitle').value.trim();
+            const timePerQuestion = parseInt(document.getElementById('sessionTimePerQuestion').value);
+            const passingScore = parseInt(document.getElementById('sessionPassingScore').value);
+
+            const checkedBoxes = document.querySelectorAll('.sessionTableCb:checked');
+            const tables = Array.from(checkedBoxes).map(cb => parseInt(cb.value));
+
+            if (tables.length === 0) {
+                alert("Pilih minimal satu tabel perkalian!");
+                return;
+            }
+
+            // Generate Random 6 Character Token
+            const token = 'PERK' + Math.floor(10 + Math.random() * 90);
+
+            const newSession = {
+                id: 'ses_' + Date.now(),
+                token,
+                title,
+                tables,
+                timePerQuestion,
+                passingScore,
+                isActive: true
+            };
+
+            appData.sessions.unshift(newSession);
+            saveStateToStorage();
+            renderTeacherDashboard();
+
+            alert(`Sesi Berhasil Dibuat!\nToken Sesi: ${token}\nBagikan token ini ke siswa.`);
+            document.getElementById('createSessionForm').reset();
+            renderSessionTableCheckboxes();
+        }
+
+        function renderSessionTable() {
+            const body = document.getElementById('sessionTableBody');
+            body.innerHTML = '';
+
+            appData.sessions.forEach(s => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="p-3 font-mono font-bold text-amber-400 text-sm">${s.token}</td>
+                    <td class="p-3 font-semibold text-white">${s.title}</td>
+                    <td class="p-3 text-indigo-300">Tabel ${s.tables.map(t => '×'+t).join(', ')}</td>
+                    <td class="p-3 text-gray-300">${s.timePerQuestion} detik</td>
+                    <td class="p-3 text-right">
+                        <button onclick="toggleSessionActive('${s.id}')" class="px-2 py-1 rounded text-[10px] font-bold ${s.isActive ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-gray-800 text-gray-500'}">
+                            ${s.isActive ? 'Aktif' : 'Non-aktif'}
+                        </button>
+                    </td>
+                `;
+                body.appendChild(tr);
+            });
+        }
+
+        function toggleSessionActive(sessionId) {
+            const session = appData.sessions.find(s => s.id === sessionId);
+            if (session) {
+                session.isActive = !session.isActive;
+                saveStateToStorage();
+                renderTeacherDashboard();
+            }
+        }
+    </script>
+</body>
+</html>
